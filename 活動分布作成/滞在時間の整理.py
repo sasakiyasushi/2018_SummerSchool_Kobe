@@ -8,6 +8,10 @@ Created on Wed Aug 22 13:11:17 2018
 import os
 import pandas as pd
 import datetime
+import time
+
+##時間計測
+t1 = time.time()
 
 t=datetime.time(2,30)
 os.chdir(r"D:\sasa\master\夏の学校\TASHA_data")
@@ -32,3 +36,8 @@ for i in range(len(df2_named)):
 
 df2_named.to_csv("PTdata3.csv",encoding="SHIFT-JIS",index= False)
     
+
+##実行時間の出力
+t2 = time.time()
+elapsed_time = t2-t1
+print(f"実行時間：{elapsed_time}秒")
