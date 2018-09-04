@@ -10,7 +10,7 @@ import pandas as pd
 import datetime
 
 t=datetime.time(2,30)
-os.chdir(r"C:/Users/nakano/Desktop/夏の学校")
+os.chdir(r"D:\sasa\master\夏の学校\TASHA_data")
 
 #列
 #df1 = pd.read_csv("PTdata1.csv",encoding="SHIFT-JIS")
@@ -26,7 +26,7 @@ df2_person = df2_named.drop_duplicates(['TripChainID'])
 df2_named['Total Stay Time']=0
 
 for i in range(len(df2_named)):
-    print(i)
+#    print(i)
     TCID = df2_named['TripChainID'][i]
     df2_named['Total Stay Time'][i] = df2_named[df2_named['TripChainID'] ==TCID]["StayTime"].sum()
 

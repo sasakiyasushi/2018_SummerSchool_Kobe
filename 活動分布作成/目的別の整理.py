@@ -29,7 +29,7 @@
 
 import os
 import pandas as pd
-os.chdir(r"E:/夏の学校2018/model2018/model2018/Japanese/配布データ/PTデータ")
+os.chdir(r"D:\sasa\master\夏の学校\TASHA_data")
 
 df = pd.read_csv("PTdata.csv",encoding="SHIFT-JIS")
 
