@@ -11,7 +11,7 @@ import time
 import os
 
 ##　パスの設定
-os.chdir(r"D:\sasa\master\夏の学校\TASHA_data")
+os.chdir(r"..\..\TASHA_data")
 
 ##時間計測
 t1 = time.time()
