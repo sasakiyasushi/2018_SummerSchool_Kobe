@@ -14,7 +14,7 @@ import time
 t1 = time.time()
 
 t=datetime.time(2,30)
-os.chdir(r"..\TASHA_data")
+os.chdir(r"..\data")
 
 #列
 #df1 = pd.read_csv("PTdata1.csv",encoding="SHIFT-JIS")

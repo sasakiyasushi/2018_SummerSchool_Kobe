@@ -29,7 +29,7 @@
 
 import os
 import pandas as pd
-os.chdir(r"..\TASHA_data")
+os.chdir(r"..\data")
 
 df = pd.read_csv("PTdata.csv",encoding="SHIFT-JIS")
 
