@@ -10,8 +10,16 @@ import csv
 import pandas as pd
 import datetime
 import setting_summer
+import time
 
-os.chdir(r"E:/夏の学校2018/model2018/model2018/Japanese/配布データ/PTデータ")
+##時間計測
+t1 = time.time()
+
+os.chdir(r"..\..\..\data")
+
+file_list = os.listdir()
+if "Hist" not in file_list:
+    os.mkdir(r".\Hist")
 
 """
 df1・・・生データフレーム,
@@ -39,41 +47,58 @@ for i in range(0,time):
     hour = i*3600
     h24.append(hour)
     
+    
+##出力用ディレクトリ
+os.chdir(r".\Hist")
+
+
 #以下__main__
 #集計対象を指定
 Data = df2
-Purpose = "pastime"
-Category = "men"
 
-df2_named = setting_summer.Dataframe(Data,Purpose,Category)
-df2_person = df2_named.drop_duplicates(['TripChainID'])
+purpose = list(range(1,7))
 
-Count_activity = []
+category = ["all",
+"men", "women",
+"under20", "over70", "20to69",
+"under20_men", "over70_men", "20to69_men",
+"under20_women", "over70_women", "20to69_women"]
 
-for i in range(Min_Hist,Max_Hist+1):
-    df_stime = df2_named[df2_named['TripNumber'] ==i]
-    
-    Count_stime = []
-    
-    for j in range(len(h24)-1):
-        s_bool = ((df_stime['Gtime'] >= h24[j]) & (df_stime['Gtime'] < h24[j+1]))
-        Count_stime.append(s_bool.sum())
+for Purpose in purpose:
+    for Category in category:
 
-    Count_activity.append(Count_stime)
-
-"""
-#確認用
-aaa = 0
-for i in range(0,len(Count_activity)):
-    print(i)
-    aaa += sum(Count_activity[i])
-    
-print(aaa)
-"""
-
-file_name = "AF-ST_"+Purpose+"_"+Category+".csv"
-
-with open(file_name, 'w') as f:
-    writer = csv.writer(f, lineterminator='\n') # 改行コード（\n）を指定しておく
-    writer.writerows(Count_activity) # 2次元配列も書き込める
-    
+        df2_named = setting_summer.filter_Dataframe(Data,Purpose,Category)
+        df2_person = df2_named.drop_duplicates(['TripChainID'])
+        
+        Count_activity = []
+        
+        for i in range(Min_Hist,Max_Hist+1):
+            df_stime = df2_named[df2_named['TripNumber'] ==i]
+            
+            Count_stime = []
+            
+            for j in range(len(h24)-1):
+                s_bool = ((df_stime['Gtime'] >= h24[j]) & (df_stime['Gtime'] < h24[j+1]))
+                Count_stime.append(s_bool.sum())
+        
+            Count_activity.append(Count_stime)
+        
+        """
+        #確認用
+        aaa = 0
+        for i in range(0,len(Count_activity)):
+            print(i)
+            aaa += sum(Count_activity[i])
+            
+        print(aaa)
+        """
+        
+        file_name = "AF-ST_"+str(Category)+"_"+str(Purpose)+".csv"
+        
+        with open(file_name, 'w') as f:
+            writer = csv.writer(f, lineterminator='\n') # 改行コード（\n）を指定しておく
+            writer.writerows(Count_activity) # 2次元配列も書き込める
+##実行時間の出力
+t2 = time.time()
+elapsed_time = t2-t1
+print(f"実行時間：{elapsed_time}秒")

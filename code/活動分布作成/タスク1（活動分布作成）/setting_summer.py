@@ -9,40 +9,50 @@ import pandas as pd
 
 """
 data = df1,df2
-purpose = "work","school" 等
-category = "women","under20" 等
+purpose
+1．通勤 2．通学 3．帰宅（自宅） 4．買い物 5．娯楽 6．その他
+purpose = list(range(1,7))
+
+category = 
+["all",
+"men", "women",
+"under20", "over70", "20to69"
+"under20_men", "over70_men", "20to69_men"
+"under20_women", "over70_women", "20to69_women"]
 """
 
-def Dataframe(data,purpose,category):
+
+def filter_Dataframe(data,purpose,category):
     
-    #目的別
-    df_work = pd.DataFrame(data[data["Purpose"].isin(["1"])])
-    df_school = pd.DataFrame(data[data["Purpose"].isin(["2"])])
-    df_home = pd.DataFrame(data[data["Purpose"].isin(["3"])])
-    df_shopping = pd.DataFrame(data[data["Purpose"].isin(["4"])])
-    df_pastime = pd.DataFrame(data[data["Purpose"].isin(["5"])])
-    df_others = pd.DataFrame(data[data["Purpose"].isin(["6"])])
+    ###目的別
+    df = data[data["Purpose"] == purpose]
     
-    df_purpose = locals()["df_"+ str(purpose)]
+    ###個人別
+    if category == "all":
+        return df
+    else:
+        ##性別フィルター
+        if "women" in category:
+            df = df[df["Sex"] == 2]
+        elif "men" in category:
+            df = df[df["Sex"] == 1]
+        ##年齢フィルター
+        if "under20" in category:
+            df = df[df["Age"] < 4]
+        elif "over70" in category:
+            df = df[(df["Age"] > 13) & (df["Age"] < 18)]
+        elif "20to69" in category:
+            df = df[(df["Age"] > 3) & (df["Age"] < 14)]
+        return df
     
-    ##個人別
-    #性別データ
-    df_men = pd.DataFrame(df_purpose[df_purpose["Sex"].isin(["1"])])
-    df_women = pd.DataFrame(df_purpose[df_purpose["Sex"].isin(["2"])])
-    
-    #年齢データ
-    df_under20 = pd.DataFrame(df_purpose[df_purpose["Age"].isin(["1","2","3"])])
-    df_over70 = pd.DataFrame(df_purpose[df_purpose["Age"].isin(["14","15","16","17"])])
-    df_20to69 = pd.DataFrame(df_purpose[df_purpose["Age"].isin(["4","5","6","7","8","9","10","11","12","13"])])
-    
-    #性別複合
-    df_over70_men = pd.DataFrame(df_over70[df_over70["Sex"].isin(["1"])])
-    df_over70_women = pd.DataFrame(df_over70[df_over70["Sex"].isin(["2"])])
-    df_20to69_men = pd.DataFrame(df_20to69[df_20to69["Sex"].isin(["1"])])
-    df_20to69_women = pd.DataFrame(df_20to69[df_20to69["Sex"].isin(["2"])])
-    df_under20_men = pd.DataFrame(df_men[df_men["Age"].isin(["1","2","3"])])
-    df_under20_women = pd.DataFrame(df_women[df_women["Age"].isin(["1","2","3"])])
-    
-    df = locals()["df_" + str(category)]
-    
-    return df
+##テスト用
+#import os
+#
+###　パスの設定
+#os.chdir(r"..\..\..\data")
+#
+#data = pd.read_csv("PTdata3.csv",encoding = "SHIFT-JIS")
+#
+#purpose = 1
+#category = "over70_women"
+#df = filter_Dataframe(data,purpose,category)

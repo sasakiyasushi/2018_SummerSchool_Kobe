@@ -13,6 +13,7 @@
 *.csv
 *.png
 *.zip
+*.pyc
 
 # Build results
 
