@@ -5,12 +5,18 @@ Created on Wed Sep  5 08:49:06 2018
 @author: sasaki
 
 目的地選択関数
+dest_choice
+
+引数
+purpose : ["work","school","shopping","pastime","others"]
+O : 起点ID
+n : 目的地選択個数（デフォルトで1）
+
 """
 
 import pandas as pd
 import numpy as np
 import os
-
 
 ##　パスの設定
 os.chdir(r"..\..\data\choice")
@@ -27,12 +33,12 @@ zone_dict = df_zone.to_dict(orient="dict")
 dest_para = df_dest_para.to_dict(orient="dict")
 
 
-##効用関数      
+##効用関数(実際の推定結果に合わせて変更予定)
 def dest_utility_function(purpose, D, distance):
     return dest_para[purpose]["B_dist"] * distance + dest_para[purpose][f"C_{D:03d}"] + dest_para[purpose]["B_v"] * zone_dict[f"v_{purpose}"][D]
 
 
-##選択確立の計算
+##選択確率の計算
 def dest_selection_probability(purpose,O,D,dist):
     ##効用配列
     V = np.vectorize(dest_utility_function)(purpose, D, dist)
