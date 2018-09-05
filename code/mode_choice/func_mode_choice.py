@@ -61,15 +61,15 @@ def mode_choice(O,D,n=1):
     return mode_list[result], travel_time_dict[(O,D)][result]
 
 
-##検証用
-import time
-import collections
-import matplotlib.pyplot as plt
-t1 = time.time()
-O = 1
-D = 10
-res_mode, res_tt = zip(*[mode_choice(O,D) for x in range(1000)])
-#plt.hist(result)
-print(collections.Counter(res_mode))
-t2 = time.time()
-print(t2-t1)
+###検証用
+#import time
+#import collections
+#import matplotlib.pyplot as plt
+#t1 = time.time()
+#O = 1
+#D = 10
+#res_mode, res_tt = zip(*[mode_choice(O,D) for x in range(1000)])
+##plt.hist(result)
+#print(collections.Counter(res_mode))
+#t2 = time.time()
+#print(t2-t1)

@@ -16,8 +16,8 @@ purpose = list(range(1,7))
 category = 
 ["all",
 "men", "women",
-"under20", "over70", "20to69"
-"under20_men", "over70_men", "20to69_men"
+"under20", "over70", "20to69",
+"under20_men", "over70_men", "20to69_men",
 "under20_women", "over70_women", "20to69_women"]
 """
 
