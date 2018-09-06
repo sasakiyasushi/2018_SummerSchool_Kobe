@@ -13,25 +13,13 @@ D : 終点ID
 
 """
 
-import pandas as pd
 import numpy as np
-import os
-
-##　パスの設定
-os.chdir(r"..\..\data\choice")
 
 ##データの読み込み
-df_time = pd.read_csv("travel_time.csv", encoding="SHIFT-JIS",index_col=[0,1])
-df_mode_para = pd.read_csv("para_mode.csv", encoding="SHIFT-JIS",index_col=[0])
+from CSV_DATA import travel_time_dict, mode_para
 
-##交通手段一覧
-mode_list = ["car","train","bus","cycle","walk"]
-
-##旅行時間を辞書に格納
-travel_time_dict = df_time.T.to_dict(orient="list")
-
-##目的別のパラメータを辞書に格納(速度向上のため)
-mode_para = df_mode_para.iloc[:,0].to_dict()
+##定数の読み込み
+from CONSTANTS import MODE_LIST, MODE_INDEX
 
 
 ##効用関数(実際の推定結果に合わせて変更予定)
@@ -56,9 +44,9 @@ def mode_selection_probability(O,D):
 ##交通手段選択関数(選択個数をnで指定)
 def mode_choice(O,D,n=1):
     ##重み付き復元抽出
-    mode_index = list(range(5))
-    result = np.random.choice(mode_index,n,p=mode_selection_probability(O,D))[0]
-    return mode_list[result], travel_time_dict[(O,D)][result]
+    
+    result = np.random.choice(MODE_INDEX,n,p=mode_selection_probability(O,D))[0]
+    return MODE_LIST[result], travel_time_dict[(O,D)][result]
 
 
 ###検証用
