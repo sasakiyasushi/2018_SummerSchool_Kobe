@@ -47,21 +47,21 @@ def sample_duration(category, purpose, start_time):
     return np.random.choice(DURATION_LIST, 1, p=weight_list)[0]
 
 
-####検証用
-import time
-#時間計測
-t1 = time.time()
-import collections
-#result = [sample_home() for i in range(10000000)]
-#result = sample_home()
+#####検証用
+#import time
+##時間計測
+#t1 = time.time()
+#import collections
+##result = [sample_home() for i in range(10000000)]
+##result = sample_home()
+##print(collections.Counter(result))
+#    
+#category = "all_all"
+#purpose = 1
+#result = [sample_duration(category, purpose,sample_start_time(category,purpose,sample_frequency(category, purpose))) for i in range(1000)]
+#
 #print(collections.Counter(result))
-    
-category = "all_all"
-purpose = 1
-result = [sample_duration(category, purpose,sample_start_time(category,purpose,sample_frequency(category, purpose))) for i in range(1000)]
-
-print(collections.Counter(result))
-##実行時間の出力
-t2 = time.time()
-elapsed_time = t2-t1
-print(f"実行時間：{elapsed_time}秒")
+###実行時間の出力
+#t2 = time.time()
+#elapsed_time = t2-t1
+#print(f"実行時間：{elapsed_time}秒")
