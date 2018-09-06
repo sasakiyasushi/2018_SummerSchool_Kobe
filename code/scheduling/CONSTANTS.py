@@ -12,12 +12,16 @@ Created on Thu Sep  6 11:28:45 2018
 START_TIME_DELTA = 30
 ##刻みインデックスに対する秒のリスト
 START_TIME_LIST = list(range(0, 24*60*60, START_TIME_DELTA*60))
+##刻みの数
+START_TIME_NUM = len(START_TIME_LIST)
 
 ##活動継続時間の時間の刻み(分)
 DURATION_DELTA = 15
 ##刻みインデックスに対する秒のリスト
 ##ただし，活動時間は似ないの平均をとるため，刻みの半分を足している
 DURATION_LIST = list(range(0+int(DURATION_DELTA*60/2), 24*60*60+int(DURATION_DELTA*60/2), DURATION_DELTA*60))
+##刻みの数
+DURATION_NUM = len(DURATION_LIST)
 
 ##交通手段一覧
 MODE_LIST = ["car","train","bus","cycle","walk"]

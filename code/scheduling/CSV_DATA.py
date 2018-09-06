@@ -12,7 +12,7 @@ import numpy as np
 import os
 
 ##定数の読み込み
-from CONSTANTS import CATEGORY_LIST, PURPOSE_INDEX
+from CONSTANTS import CATEGORY_LIST, PURPOSE_INDEX, START_TIME_NUM, DURATION_NUM
 
 ##　パスの設定
 os.chdir(r"..\..\data\input_data")
@@ -89,11 +89,11 @@ for category in CATEGORY_LIST:
         
         df_sta = pd.read_csv(f"start_time_{cp}.csv",index_col=["frequency"])
         tmp_sta = df_sta.values
-        start_time_dict[category][purpose] = tmp_sta
+        start_time_dict[category][purpose] = tmp_sta[:,:START_TIME_NUM]
         
         df_dur = pd.read_csv(f"duration_{cp}.csv",index_col=["start_time"])
         tmp_dur = df_dur.values
-        duration_dict[category][purpose] = tmp_dur
+        duration_dict[category][purpose] = tmp_dur[:,:DURATION_NUM]
 else:
     frequency_arr = df_fre.index.values
     start_time_arr = np.vectorize(np.int64)(df_sta.columns.values)
