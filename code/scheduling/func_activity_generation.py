@@ -21,6 +21,7 @@ from CSV_DATA import home_sampling_list, frequency_dict, start_time_dict, durati
 ##定数の読み込み
 from CONSTANTS import START_TIME_DELTA, START_TIME_LIST, DURATION_LIST
 
+##自宅は事前にサンプリング済みのため，関数実行ごとにインデックスを増やしていく
 home_counter = 0
 
 ###自宅サンプリング関数
