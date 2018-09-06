@@ -42,9 +42,9 @@ Min_Hist = min(df3['TripNumber'].unique().tolist())
 h24 = []
 
 #15分単位
-time =25*4
+Time =25*4
 
-for i in range(0,time):
+for i in range(0,Time):
     hour = i*3600
     h24.append(hour)
     
@@ -57,11 +57,18 @@ Data = df3
 
 purpose = list(range(1,7))
 
-category = ["all",
-"men", "women",
-"under20", "over70", "20to69",
-"under20_men", "over70_men", "20to69_men",
-"under20_women", "over70_women", "20to69_women"]
+category = ['all_all',
+ 'all_men',
+ 'all_women',
+ 'under20_all',
+ 'under20_men',
+ 'under20_women',
+ 'over70_all',
+ 'over70_men',
+ 'over70_women',
+ '20to69_all',
+ '20to69_men',
+ '20to69_women']
 
 for Purpose in purpose:
     for Category in category:
