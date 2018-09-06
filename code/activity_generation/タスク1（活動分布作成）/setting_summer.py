@@ -13,12 +13,19 @@ purpose
 1．通勤 2．通学 3．帰宅（自宅） 4．買い物 5．娯楽 6．その他
 purpose = list(range(1,7))
 
-category = 
-["all",
-"men", "women",
-"under20", "over70", "20to69",
-"under20_men", "over70_men", "20to69_men",
-"under20_women", "over70_women", "20to69_women"]
+CATEGORY_LIST
+['all_all',
+ 'all_men',
+ 'all_women',
+ 'under20_all',
+ 'under20_men',
+ 'under20_women',
+ 'over70_all',
+ 'over70_men',
+ 'over70_women',
+ '20to69_all',
+ '20to69_men',
+ '20to69_women']
 """
 
 
@@ -28,7 +35,7 @@ def filter_Dataframe(data,purpose,category):
     df = data[data["Purpose"] == purpose]
     
     ###個人別
-    if category == "all":
+    if category == "all_all":
         return df
     else:
         ##性別フィルター

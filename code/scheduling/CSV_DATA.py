@@ -11,6 +11,8 @@ import pandas as pd
 import numpy as np
 import os
 
+##定数の読み込み
+from CONSTANTS import CATEGORY_LIST, PURPOSE_INDEX
 
 ##　パスの設定
 os.chdir(r"..\..\data\input_data")
@@ -69,3 +71,30 @@ home_sampling_list = np.random.choice(zone_arr, PEOPLE_NUM+100, p=pop_w)
 ##　パスの設定
 os.chdir(r"..\activity_generation")
 
+##確率分布を辞書に格納
+frequency_dict = {}
+start_time_dict = {}
+duration_dict = {}
+
+for category in CATEGORY_LIST:
+    frequency_dict[category] = {}
+    start_time_dict[category] = {}
+    duration_dict[category] = {}
+    for purpose in PURPOSE_INDEX:
+        cp = f"{category}_{purpose}"
+        
+        df_fre = pd.read_csv(f"frequency_{cp}.csv",index_col=["frequency"])
+        tmp_fre = df_fre.values.flatten()
+        frequency_dict[category][purpose] = tmp_fre
+        
+        df_sta = pd.read_csv(f"start_time_{cp}.csv",index_col=["frequency"])
+        tmp_sta = df_sta.values
+        start_time_dict[category][purpose] = tmp_sta
+        
+        df_dur = pd.read_csv(f"duration_{cp}.csv",index_col=["start_time"])
+        tmp_dur = df_dur.values
+        duration_dict[category][purpose] = tmp_dur
+else:
+    frequency_arr = df_fre.index.values
+    start_time_arr = np.vectorize(np.int64)(df_sta.columns.values)
+    duration_arr = np.vectorize(np.int64)(df_dur.columns.values)

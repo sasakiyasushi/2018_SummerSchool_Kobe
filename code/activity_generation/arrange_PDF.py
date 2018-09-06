@@ -17,11 +17,18 @@ t1 = time.time()
 os.chdir(r"..\..\data\PDF")
 
 ##分類
-category = ["all",
-"men", "women",
-"under20", "over70", "20to69",
-"under20_men", "over70_men", "20to69_men",
-"under20_women", "over70_women", "20to69_women"]
+category = ['all_all',
+ 'all_men',
+ 'all_women',
+ 'under20_all',
+ 'under20_men',
+ 'under20_women',
+ 'over70_all',
+ 'over70_men',
+ 'over70_women',
+ '20to69_all',
+ '20to69_men',
+ '20to69_women']
 
 ##目的
 purpose = list(range(1,7))
