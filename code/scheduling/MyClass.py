@@ -18,19 +18,21 @@ from func_activity_generation import sample_home, initial_sampling
 
 
 class Episode:
-    def __init__(self, start_time, duration):
+    def __init__(self, start_time, duration, purpose):
         self.__INITIAL_START_TIME = start_time
         self.__INITIAL_DURATION = duration
         self.__START_TIME_MIN = start_time - SHIFT_LIMIT
         self.__START_TIME_MAX = start_time + SHIFT_LIMIT
         self.__DURATION_MIN = duration * SHORTENING_LIMIT
         
+        self.__PURPOSE = purpose
+        
         self.__start_time = start_time
         self.__duration = duration
         self.__place = -1
         
         self.__pre_start_time = start_time
-        self.__pre_duration = duratioin
+        self.__pre_duration = duration
         
     def get_start_time(self):
         return self.__start_time
@@ -70,8 +72,8 @@ class Episode:
             self.__pre_start_time += s
 
     def shortening(self, d):
-        if self.__DURATION_MIN < self.pre_duration - d:
-            self.__pre_duration -= d
+        if self.__DURATION_MIN < self.__pre_duration + d:
+            self.__pre_duration += d
         else:
             self.__pre_duration = self.__DURATION_MIN
         
@@ -83,7 +85,7 @@ class Episode:
 class Project:
     def __init__(self, category, purpose):
         self.__frequency, start_time_list, duration_list = initial_sampling(category, purpose)
-        self.pre_schedule = [Episode(st,du) for st, du in zip(start_time_list, duration_list)]
+        self.pre_schedule = [Episode(st,du,purpose) for st, du in zip(start_time_list, duration_list)]
         self.schedule = []
         
     def get_frequency(self):
@@ -109,90 +111,144 @@ class Project:
             self.schedule.insert(prior_ind+1, new_episode)
         elif overlap_num == 1: ##一つのエピソードのみが重なっているとき
             overlap_ind = overlap_list[0]
-            if not(self.schedule[overlap_ind].get_start_time() <= new_episode.get_start_time() and new_episode.get_end_time() <= self.schedule[overlap_ind].get_end_time()):
+            if self.schedule[overlap_ind].get_start_time() <= new_episode.get_start_time() and new_episode.get_end_time() <= self.schedule[overlap_ind].get_end_time():
                 ## 挿入するエピソードが，既存のエピソードに内包されている場合は排除
+                pass
+            else:
                 if overlap_ind == prior_ind: ##重なっているのが前のエピソード
-                    gap = new_episode.get_gap(schedule[overlap_ind])
+                    gap = new_episode.get_gap(self.schedule[overlap_ind])
                     ###### 挿入するエピソードのシフト
                     if overlap_ind == len(self.schedule) - 1: ##重なっているエピソードが末尾
                         new_episode.shift(-1 * gap)
                     else:
-                        new_episode.shift(min(abs(gap),new_episode.get_gap(schedule[overlap_ind+1])))
-                    gap = new_episode.get_gap(schedule[overlap_ind])
+                        new_episode.shift(min(abs(gap),new_episode.get_gap(self.schedule[overlap_ind+1])))
+                    gap = new_episode.get_gap(self.schedule[overlap_ind])
                     if gap <  0:
                         ###### 前のエピソードをシフト
                         if overlap_ind == 0: ## 重ねってるエピソードが先頭
-                            schedule[overlap_ind].shift(gap)
+                            self.schedule[overlap_ind].shift(gap)
                         else:
-                            schedule[overlap_ind].shift(max(gap, -1 * schedule[overlap_ind].get_gap(schedule[overlap_ind-1])))
-                        gap = new_episode.get_gap(schedule[overlap_ind])
+                            self.schedule[overlap_ind].shift(max(gap, -1 * self.schedule[overlap_ind].get_gap(self.schedule[overlap_ind-1])))
+                        gap = new_episode.get_gap(self.schedule[overlap_ind])
                         if gap <  0:
                             ###### 挿入するエピソードを削減
                             new_episode.shortening(gap)
                             if overlap_ind == len(self.schedule) - 1: ##重なっているエピソードが末尾
-                                new_episode.shift(-1 * new_episode.get_gap(schedule[overlap_ind]))
+                                new_episode.shift(-1 * new_episode.get_gap(self.schedule[overlap_ind]))
                             else:
-                                new_episode.shift(min(abs(new_episode.get_gap(schedule[overlap_ind])),new_episode.get_gap(schedule[overlap_ind+1])))
-                            gap = new_episode.get_gap(schedule[overlap_ind])
+                                new_episode.shift(min(abs(new_episode.get_gap(self.schedule[overlap_ind])),new_episode.get_gap(self.schedule[overlap_ind+1])))
+                            gap = new_episode.get_gap(self.schedule[overlap_ind])
                             if gap <  0:
                                 ###### 前のエピソードを削減
-                                schedule[overlap_ind].shortening(gap)
-                                gap = new_episode.get_gap(schedule[overlap_ind])
+                                self.schedule[overlap_ind].shortening(gap)
+                                gap = new_episode.get_gap(self.schedule[overlap_ind])
                                 if gap <  0:
                                     ##重なりが解消できなかった時
                                     new_episode.downdate()
-                                    schedule[overlap_ind].downdate()
+                                    self.schedule[overlap_ind].downdate()
                                     return
                     ##重なりが解消できたとき
                     new_episode.update()
-                    schedule[overlap_ind].update()
+                    self.schedule[overlap_ind].update()
                     self.schedule.insert(prior_ind+1, new_episode)
                 else: ##重なっているのが後ろのエピソード
-                    gap = new_episode.get_gap(schedule[overlap_ind])
+                    gap = new_episode.get_gap(self.schedule[overlap_ind])
                     ###### 挿入するエピソードのシフト
                     if overlap_ind == 0: ##重なっているエピソードが先頭
                         new_episode.shift(gap)
                     else:
-                        new_episode.shift(max(gap, -1 * new_episode.get_gap(schedule[overlap_ind-1])))
-                    gap = new_episode.get_gap(schedule[overlap_ind])
+                        new_episode.shift(max(gap, -1 * new_episode.get_gap(self.schedule[overlap_ind-1])))
+                    gap = new_episode.get_gap(self.schedule[overlap_ind])
                     if gap <  0:
                         ###### 後ろのエピソードをシフト
                         if overlap_ind == len(self.schedule) - 1: ## 重ねってるエピソードが末尾
-                            schedule[overlap_ind].shift(-1 * gap)
+                            self.schedule[overlap_ind].shift(-1 * gap)
                         else:
-                            schedule[overlap_ind].shift(min(abs(gap), schedule[overlap_ind].get_gap(schedule[overlap_ind+1])))
-                        gap = new_episode.get_gap(schedule[overlap_ind])
+                            self.schedule[overlap_ind].shift(min(abs(gap), self.schedule[overlap_ind].get_gap(self.schedule[overlap_ind+1])))
+                        gap = new_episode.get_gap(self.schedule[overlap_ind])
                         if gap <  0:
                             ###### 挿入するエピソードを削減
                             new_episode.shortening(gap)
-                            gap = new_episode.get_gap(schedule[overlap_ind])
+                            gap = new_episode.get_gap(self.schedule[overlap_ind])
                             if gap <  0:
                                 ###### 後ろのエピソードを削減
-                                schedule[overlap_ind].shortening(gap)
-                                if overlap_ind == len(self.schedule) - 1: ##重なっているエピソードが先頭
-                                    schedule[overlap_ind](new_episode.get_gap(schedule[overlap_ind]))
+                                self.schedule[overlap_ind].shortening(gap)
+                                if overlap_ind == len(self.schedule) - 1: ##重なっているエピソードが末尾
+                                    self.schedule[overlap_ind].shift(gap)
                                 else:
-                                    schedule[overlap_ind].shift(max(new_episode.get_gap(schedule[overlap_ind]), -1 * new_episode.get_gap(schedule[overlap_ind-1])))
-                                gap = new_episode.get_gap(schedule[overlap_ind])
+                                    self.schedule[overlap_ind].shift(min(abs(gap), self.schedule[overlap_ind].get_gap(self.schedule[overlap_ind+1])))
+                                gap = new_episode.get_gap(self.schedule[overlap_ind])
                                 if gap <  0:
                                     ##重なりが解消できなかった時
                                     new_episode.downdate()
-                                    schedule[overlap_ind].downdate()
+                                    self.schedule[overlap_ind].downdate()
                                     return
                     ##重なりが解消できたとき
                     new_episode.update()
-                    schedule[overlap_ind].update()
+                    self.schedule[overlap_ind].update()
                     self.schedule.insert(prior_ind+1, new_episode)
                     
             
         elif overlap_num == 2: ##被りが二つ以上
-            
+            overlap_pri = overlap_list[0] ##一つ目のインデックス
+            overlap_pos = overlap_list[1] ##二つ目のインデックス
+            gap = new_episode.get_gap(self.schedule[overlap_pri]) + new_episode.get_gap(self.schedule[overlap_pos])
+            ###### 前のエピソードをシフト
+            if overlap_pri == 0: ## 重なってるエピソードが先頭
+                self.schedule[overlap_pri].shift(gap)
+            else:
+                self.schedule[overlap_pri].shift(max(gap, -1 * self.schedule[overlap_pri].get_gap(self.schedule[overlap_pri-1])))
+            ##前のエピソードがずれてできた隙間の分だけ挿入するエピソードもシフト
+            new_episode.shift(new_episode.get_gap(self.schedule[overlap_pri]))
+            gap = new_episode.get_gap(self.schedule[overlap_pri]) + new_episode.get_gap(self.schedule[overlap_pos])
+            if gap <  0:
+                ###### 後ろのエピソードをシフト
+                if overlap_pos == len(self.schedule) - 1: ## 重ねってるエピソードが末尾
+                    self.schedule[overlap_pos].shift(-1 * gap)
+                else:
+                    self.schedule[overlap_pos].shift(min(abs(gap), self.schedule[overlap_pos].get_gap(self.schedule[overlap_pos+1])))
+                ##前のエピソードがずれてできた隙間の分だけ挿入するエピソードもシフト
+                new_episode.shift(-1 * new_episode.get_gap(self.schedule[overlap_pos]))
+                gap = new_episode.get_gap(self.schedule[overlap_pri]) + new_episode.get_gap(self.schedule[overlap_pos])
+                if gap <  0:
+                    ###### 挿入するエピソードを削減
+                    new_episode.shortening(gap)
+                    gap_pos = new_episode.get_gap(self.schedule[overlap_pos])
+                    if gap_pos >= 0:
+                        new_episode.shift(min(abs(new_episode.get_gap(self.schedule[overlap_pri])),new_episode.get_gap(self.schedule[overlap_pos])))
+                    gap_pri = new_episode.get_gap(self.schedule[overlap_pri])
+                    gap_pos = new_episode.get_gap(self.schedule[overlap_pos])                     
+                    gap = gap_pri + gap_pos
+                    if gap_pri < 0:
+                        ###### 前のエピソードを削減
+                        self.schedule[overlap_pri].shortening(gap)
+                        ##前のエピソードがずれてできた隙間の分だけ挿入するエピソードもシフト
+                        new_episode.shift(new_episode.get_gap(self.schedule[overlap_pri]))
+                    gap = new_episode.get_gap(self.schedule[overlap_pri]) + new_episode.get_gap(self.schedule[overlap_pos])
+                    gap_pos = new_episode.get_gap(self.schedule[overlap_pos])
+                    if gap_pos < 0:
+                        ###### 後ろのエピソードを削減
+                        self.schedule[overlap_pos].shortening(gap_pos)
+                        if overlap_pos == len(self.schedule) - 1: ##重なっているエピソードが末尾
+                            self.schedule[overlap_pos].shift(gap)
+                        else:
+                            self.schedule[overlap_pos].shift(min(abs(gap), self.schedule[overlap_pos].get_gap(self.schedule[overlap_pos+1])))
+                        gap = new_episode.get_gap(self.schedule[overlap_pri]) + new_episode.get_gap(self.schedule[overlap_pos])
+                        if gap <  0:
+                            ##重なりが解消できなかった時
+                            new_episode.downdate()
+                            self.schedule[overlap_pri].downdate()
+                            self.schedule[overlap_pos].downdate()
+                            return
+            ##重なりが解消できたとき
+            new_episode.update()
+            self.schedule[overlap_pri].update()
+            self.schedule[overlap_pos].update()
+            self.schedule.insert(overlap_pos, new_episode)
+                            
         else: ## 被りが三つ以上ある場合は，新しいエピソードが既存のエピソードを内包しているということなので排除
             pass
-            
         
-            
-            
     
     def make_project(self):
         for episode in self.pre_schedule:
@@ -202,19 +258,21 @@ class Project:
                 break
     
         
-
-p = Project("all_all", 1)
-
-pre = [x.output() for x in p.pre_schedule]
-print(pre)
-
-pro = [x.output() for x in p.schedule]
-print(pro)
-
-p.make_project()
-
-pro = [x.output() for x in p.schedule]
-print(pro)
+for i in range(10):
+    
+    p = Project("all_all", 1)
+    
+    print(p.get_frequency())
+    
+    pre = [x.output() for x in p.pre_schedule]
+    print(pre)
+    
+    pro = [x.output() for x in p.schedule]
+    
+    p.make_project()
+    
+    pro = [x.output() for x in p.schedule]
+    print(pro)
 
 
 
