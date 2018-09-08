@@ -30,14 +30,12 @@ MODE_INDEX = list(range(len(MODE_LIST)))
 
 
 ##目的一覧
-
 PURPOSE_LIST = ["work", "school", "home", "shopping", "pastime", "others"]
 
 PURPOSE_INDEX = list(range(1,len(PURPOSE_LIST)+1))
 
 
 ##個人属性分類一覧
-
 AGE_LIST = ["all", "under20", "over70", "20to69"]
 SEX_LIST = ["all", "men", "women"]
 
