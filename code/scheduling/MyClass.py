@@ -8,7 +8,7 @@ Created on Wed Sep  5 19:51:37 2018
 """
 
 ##定数の読み込み
-from CONSTANTS import SHIFT_LIMIT, SHORTENING_LIMIT
+from CONSTANTS import SHIFT_LIMIT, SHORTENING_LIMIT, PURPOSE_INDEX
 
 ##外部の関数読み込み
 from func_activity_generation import sample_home, initial_sampling
@@ -34,6 +34,8 @@ class Episode:
         self.__pre_start_time = start_time
         self.__pre_duration = duration
         
+    def get_purpose(self):
+        return self.__PURPOSE
     def get_start_time(self):
         return self.__start_time
     def get_duration(self):
@@ -85,19 +87,11 @@ class Episode:
 class Project:
     def __init__(self, category, purpose):
         self.__frequency, start_time_list, duration_list = initial_sampling(category, purpose)
-        self.__frequency = 4
         self.pre_schedule = [Episode(st,du,purpose) for st, du in zip(start_time_list, duration_list)]
         self.schedule = []
         
     def get_frequency(self):
         return self.__frequency
-    
-    def get_start_time_list(self):
-        return [epi.get_start_time() for epi in self.schedule]
-    
-    def get_end_time_list(self):
-        return [epi.get_end_time() for epi in self.schedule]
-    
 
     def schedule_episode(self, new_episode):
 #        print("挿入するエピソード", new_episode.output())
@@ -281,7 +275,7 @@ class Project:
             pass
 #        print("挿入された後のスケジュール", [x.output() for x in self.schedule])
     
-    def make_project(self):
+    def make_schedule(self):
         for episode in self.pre_schedule:
             self.schedule_episode(episode)
             ##プロジェクト内のエピソードが活動数に達したら終了
@@ -292,54 +286,67 @@ class Project:
 
 ###検証      
                 
-RES = []
-
-for i in range(1000):
-    
-    p = Project("all_all", 1)
-    
-#    print(p.get_frequency())
-    
-    pre = [x.output() for x in p.pre_schedule]
-#    print(pre)
-    
-    pro = [x.output() for x in p.schedule]
-    
-    p.make_project()
-    
-    pro = [x.output() for x in p.schedule]
-#    print(pro)
-    a1 = -100000000000
-    res = []
-    for j in range(len(pro)):
-        a2 = pro[j][0]
-        res.append(a1 <= a2)
-        a1 = pro[j][1]
-    if len(res) != sum(res):
-        print("error")
-        break
-    RES.extend(res)
-
-print(len(RES) == sum(RES))
-
-
-
-
-
+#RES = []
 #
-#a = 0
+#for i in range(1000):
+#    
+#    p = Project("all_all", 1)
+#    
+##    print(p.get_frequency())
+#    
+#    pre = [x.output() for x in p.pre_schedule]
+##    print(pre)
+#    
+#    pro = [x.output() for x in p.schedule]
+#    
+#    p.make_schedule()
+#    
+#    pro = [x.output() for x in p.schedule]
+##    print(pro)
+#    a1 = -100000000000
+#    res = []
+#    for j in range(len(pro)):
+#        a2 = pro[j][0]
+#        res.append(a1 <= a2)
+#        a1 = pro[j][1]
+#    if len(res) != sum(res):
+#        print("error")
+#        break
+#    RES.extend(res)
 #
-#b = 10
-#
-#c = -100
-#d = 100
-#
-#print(not(d <= a or b <= c))
+#print(len(RES) == sum(RES))
 
-#class Schedule:
-#    def __ init__(self):
-#        self.__home = sample_home()
-#        self.episodes = []
-#        
-#    def get_home():
-#        return self.__home
+
+
+class Schedule(Project):
+    ###Projectクラスを継承
+    def __init__(self, category):
+        self.__home = sample_home()
+        self.projects = [Project(category, purpose) for purpose in PURPOSE_INDEX]
+        self.pre_schedule = []
+        ex = self.pre_schedule.extend
+        for pro in self.projects:
+            pro.make_schedule()
+            ex(pro.schedule)
+        self.schedule = []
+        
+    def get_home(self):
+        return self.__home
+    
+    def out_put(self):
+        for e in self.schedule:
+            print(e.get_purpose(), e.get_start_time(), e.get_duration(), e.get_end_time())
+            
+    def make_schedule(self):
+        for episode in self.pre_schedule:
+            self.schedule_episode(episode)
+
+
+schedule_list = []
+        
+for i in range(100):
+    s = Schedule("all_all")
+    s.make_schedule()
+    s.out_put()
+    schedule_list.append(s)
+    print()

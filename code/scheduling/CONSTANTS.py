@@ -30,9 +30,11 @@ MODE_INDEX = list(range(len(MODE_LIST)))
 
 
 ##目的一覧
-PURPOSE_LIST = ["work", "school", "home", "shopping", "pastime", "others"]
+#PURPOSE_LIST = ["work", "school", "home", "shopping", "pastime", "others"]
+PURPOSE_LIST = ["work", "school", "shopping", "pastime", "others"]
 
-PURPOSE_INDEX = list(range(1,len(PURPOSE_LIST)+1))
+#PURPOSE_INDEX = list(range(1,len(PURPOSE_LIST)+1))
+PURPOSE_INDEX = [1, 2, 4, 5, 6]
 
 
 ##個人属性分類一覧
