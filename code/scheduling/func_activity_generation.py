@@ -19,7 +19,7 @@ import numpy as np
 from CSV_DATA import home_sampling_list, frequency_dict, start_time_dict, duration_dict, frequency_arr
 
 ##定数の読み込み
-from CONSTANTS import START_TIME_DELTA, START_TIME_LIST, DURATION_LIST
+from CONSTANTS import START_TIME_DELTA, START_TIME_LIST, DURATION_LIST, RESUMPLE_LIMIT
 
 ##自宅は事前にサンプリング済みのため，関数実行ごとにインデックスを増やしていく
 home_counter = 0
@@ -51,7 +51,7 @@ def sample_duration(category, purpose, start_time):
 ###サンプリングを一度に実行
 def initialize_sampling(category, purpose):
     frequency = sample_frequency(category, purpose)
-    start_time_list = sample_start_time(category, purpose, frequency, n=frequency)
+    start_time_list = sample_start_time(category, purpose, frequency, n=frequency+RESUMPLE_LIMIT)
     duration_list = [sample_duration(category, purpose, x) for x in start_time_list]
     return frequency, start_time_list, duration_list
 

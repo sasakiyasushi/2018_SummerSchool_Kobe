@@ -43,16 +43,15 @@ CATEGORY_LIST = [f"{age}_{sex}" for age in AGE_LIST for sex in SEX_LIST]
 
 """
 CATEGORY_LIST
-['all_all',
- 'all_men',
- 'all_women',
- 'under20_all',
- 'under20_men',
- 'under20_women',
- 'over70_all',
- 'over70_men',
- 'over70_women',
- '20to69_all',
- '20to69_men',
- '20to69_women']
+['all_all', 'all_men', 'all_women', 'under20_all', 'under20_men', 'under20_women',
+ 'over70_all', 'over70_men', 'over70_women', '20to69_all', '20to69_men', '20to69_women']
 """
+
+##再サンプリング上限回数
+RESUMPLE_LIMIT = 10
+
+##エピソードシフト上限時間(秒)
+SHIFT_LIMIT = 3 * 60 * 60
+
+##エピソード短縮　上限割合
+SHORTENING_LIMIT = 0.5
