@@ -49,7 +49,7 @@ def sample_duration(category, purpose, start_time):
     return np.random.choice(DURATION_LIST, 1, p=weight_list)[0]
 
 ###サンプリングを一度に実行
-def initialize_sampling(category, purpose):
+def initial_sampling(category, purpose):
     frequency = sample_frequency(category, purpose)
     start_time_list = sample_start_time(category, purpose, frequency, n=frequency+RESUMPLE_LIMIT)
     duration_list = [sample_duration(category, purpose, x) for x in start_time_list]
