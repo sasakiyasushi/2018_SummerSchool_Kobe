@@ -19,8 +19,9 @@ import numpy as np
 from CSV_DATA import home_sampling_list, frequency_dict, start_time_dict, duration_dict, frequency_arr
 
 ##定数の読み込み
-from CONSTANTS import START_TIME_DELTA, START_TIME_LIST, DURATION_LIST
+from CONSTANTS import START_TIME_DELTA, START_TIME_LIST, DURATION_LIST, RESUMPLE_LIMIT
 
+##自宅は事前にサンプリング済みのため，関数実行ごとにインデックスを増やしていく
 home_counter = 0
 
 ###自宅サンプリング関数
@@ -37,15 +38,22 @@ def sample_frequency(category, purpose):
     return np.random.choice(frequency_arr, 1, p=weight_list)[0]
 
 ###活動開始時刻のサンプリング
-def sample_start_time(category, purpose, frequency):
+    #######返り値が配列であることに注意
+def sample_start_time(category, purpose, frequency, n=1):
     weight_list = start_time_dict[category][purpose][frequency]
-    return np.random.choice(START_TIME_LIST, 1, p=weight_list)[0]
+    return np.random.choice(START_TIME_LIST, n, p=weight_list)
     
 ###活動継続時間のサンプリング
 def sample_duration(category, purpose, start_time):
     weight_list =duration_dict[category][purpose][int(start_time/(START_TIME_DELTA*60))]
     return np.random.choice(DURATION_LIST, 1, p=weight_list)[0]
 
+###サンプリングを一度に実行
+def initial_sampling(category, purpose):
+    frequency = sample_frequency(category, purpose)
+    start_time_list = sample_start_time(category, purpose, frequency, n=frequency+RESUMPLE_LIMIT)
+    duration_list = [sample_duration(category, purpose, x) for x in start_time_list]
+    return frequency, start_time_list, duration_list
 
 #####検証用
 #import time

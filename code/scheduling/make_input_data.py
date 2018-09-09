@@ -17,7 +17,7 @@ t1 = time.time()
 ##　パスの設定
 os.chdir(r"..\..\data\input_data")
 
-personal_id = list(range(100))
+personal_id = list(range(100000))
 sex = ["all"] * len(personal_id)
 age = ["all"] * len(personal_id)
 

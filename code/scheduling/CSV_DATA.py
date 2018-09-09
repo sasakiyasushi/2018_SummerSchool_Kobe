@@ -14,12 +14,20 @@ import os
 ##定数の読み込み
 from CONSTANTS import CATEGORY_LIST, PURPOSE_INDEX, START_TIME_NUM, DURATION_NUM
 
+##後で戻すため，現在のディレクトリを保存
+cd = os.getcwd()
+
 ##　パスの設定
 os.chdir(r"..\..\data\input_data")
 
-df_personal = pd.read_csv("personal_data.csv", encoding="SHIFT-JIS", index_col=[0])
+df_personal = pd.read_csv("personal_data.csv", encoding="SHIFT-JIS")
 
 PEOPLE_NUM = len(df_personal)
+
+id_arr = df_personal.id.values
+sex_arr = df_personal.sex.values
+age_arr = df_personal.age.values
+category_arr = np.vectorize(lambda x, y: f"{x}_{y}")(age_arr, sex_arr)
 
 
 ##　パスの設定
@@ -98,3 +106,6 @@ else:
     frequency_arr = df_fre.index.values
     start_time_arr = np.vectorize(np.int64)(df_sta.columns.values)
     duration_arr = np.vectorize(np.int64)(df_dur.columns.values)
+
+##ディレクトリを元に戻す
+os.chdir(cd)
