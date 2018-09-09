@@ -10,7 +10,7 @@ Created on Wed Sep  5 19:51:37 2018
 import numpy as np
 
 ##定数の読み込み
-from CONSTANTS import SHIFT_LIMIT, SHORTENING_LIMIT, PURPOSE_INDEX
+from CONSTANTS import SHIFT_LIMIT, SHORTENING_LIMIT, PURPOSE_INDEX, PURPOSE_DIC
 
 ##外部の関数読み込み
 from func_activity_generation import sample_home, initial_sampling
@@ -339,7 +339,7 @@ class Schedule(Project):
             ##個人ＩＤ，アクティビティID，出発地，トリップ開始時刻，旅行時間，交通手段，
             ##到着地（活動場所），目的，活動開始時間，活動終了時間
             res = (self.__personal_id, i, O, e.get_t_start_time(), e.get_travel_time(), e.get_mode(),\
-                   e.get_place(), e.get_purpose(), e.get_start_time(), e.get_end_time())
+                   e.get_place(), PURPOSE_DIC[e.get_purpose()], e.get_start_time(), e.get_end_time())
             O = e.get_place()
             ap(res)
         ##　帰宅トリップの記述

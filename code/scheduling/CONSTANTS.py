@@ -14,7 +14,7 @@ RESUMPLE_LIMIT = 10
 ##エピソードシフト上限時間(秒)
 SHIFT_LIMIT = 2 * 60 * 60
 
-##エピソード短縮　上限割合
+##エピソード短縮　限界割合
 SHORTENING_LIMIT = 0.5
 
 

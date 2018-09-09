@@ -21,10 +21,10 @@ from MyClass import Schedule
 
 
 ###################################
-##  テスト用（上限人数設定）
-n = 1000
-id_arr = id_arr[:n]
-category_arr = category_arr[:n]
+###  テスト用（上限人数設定）
+#n = 1000
+#id_arr = id_arr[:n]
+#category_arr = category_arr[:n]
 
 ###################################
 
