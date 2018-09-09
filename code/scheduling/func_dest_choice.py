@@ -10,7 +10,6 @@ dest_choice
 引数
 purpose : ["work","school","shopping","pastime","others"]
 O : 起点ID
-n : 目的地選択個数（デフォルトで1）
 
 """
 
@@ -18,10 +17,13 @@ import numpy as np
 
 ##データの読み込み
 from CSV_DATA import df_distance, zone_dict, dest_para
+from CONSTANTS import PURPOSE_DIC
 
 ##効用関数(実際の推定結果に合わせて変更予定)
 def dest_utility_function(purpose, D, distance):
+    purpose = PURPOSE_DIC[purpose]
     return dest_para[purpose]["B_dist"] * distance + dest_para[purpose][f"C_{D:03d}"] + dest_para[purpose]["B_v"] * zone_dict[f"v_{purpose}"][D]
+
 
 
 ##選択確率の計算
@@ -31,12 +33,12 @@ def dest_selection_probability(purpose,O,D,dist):
     return np.exp(V) / np.exp(V).sum(axis=0)
 
 
-##目的地選択関数(目的地選択個数をnで指定)
+##目的地選択関数(目的地選択個数は1で固定)
 def dest_choice(purpose,O,n=1):
     ##インプット用配列作成
     D, dist = df_distance[df_distance.O == O][["D","dist"]].values.T
     ##重み付き復元抽出
-    return np.random.choice(D,n,p=dest_selection_probability(purpose,O,D,dist))
+    return np.random.choice(D,n,p=dest_selection_probability(purpose,O,D,dist))[0]
 
 
 ###検証用
@@ -45,7 +47,7 @@ def dest_choice(purpose,O,n=1):
 #import matplotlib.pyplot as plt
 #t1 = time.time()
 #O = 1
-#purpose = "work"
+#purpose = 1
 #n = 1
 #result = [dest_choice(purpose,O,n)[0] for x in range(1000)]
 #plt.hist(result)

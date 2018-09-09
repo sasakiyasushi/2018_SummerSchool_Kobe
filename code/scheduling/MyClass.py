@@ -7,13 +7,15 @@ Created on Wed Sep  5 19:51:37 2018
 クラスの定義
 """
 
+import numpy as np
+
 ##定数の読み込み
 from CONSTANTS import SHIFT_LIMIT, SHORTENING_LIMIT, PURPOSE_INDEX
 
 ##外部の関数読み込み
 from func_activity_generation import sample_home, initial_sampling
-#from func_mode_choice import mode_choice
-#from func_dest_choice import dest_choice
+from func_mode_choice import mode_choice
+from func_dest_choice import dest_choice
 
 
 
@@ -29,10 +31,19 @@ class Episode:
         
         self.__start_time = start_time
         self.__duration = duration
-        self.__place = -1
         
         self.__pre_start_time = start_time
         self.__pre_duration = duration
+        
+        ##活動前トリップに関する変数
+        self.__place = -1
+        self.__mode = "none"
+        self.__travel_time = -1
+        
+    def get_MAX(self):
+        return self.__START_TIME_MAX
+    def get_MIN(self):
+        return self.__START_TIME_MIN
         
     def get_purpose(self):
         return self.__PURPOSE
@@ -42,8 +53,6 @@ class Episode:
         return self.__duration
     def get_end_time(self):
         return self.__start_time + self.__duration
-    def get_place(self):
-        return self.__place
     def get_pre_start_time(self):
         return self.__pre_start_time
     def get_pre_duration(self):
@@ -54,16 +63,13 @@ class Episode:
         min_t = min(self.__pre_start_time, ep.get_pre_start_time())
         max_t = max(self.get_pre_end_time(), ep.get_pre_end_time())
         return (max_t - min_t) - (self.__pre_duration + ep.get_pre_duration())
-    
-    def set_place(self, p):
-        self.__place = p
+            
     def update(self):
         self.__start_time = self.__pre_start_time
         self.__duration = self.__pre_duration
     def downdate(self):
         self.__pre_start_time = self.__start_time
         self.__pre_duration = self.__duration
-
         
     def shift(self, s):
         if self.__START_TIME_MIN > self.__pre_start_time + s:
@@ -72,13 +78,35 @@ class Episode:
             self.__pre_start_time = self.__START_TIME_MAX
         else:
             self.__pre_start_time += s
-
     def shortening(self, d):
         if self.__DURATION_MIN < self.__pre_duration + d:
             self.__pre_duration += d
         else:
             self.__pre_duration = self.__DURATION_MIN
-        
+    
+    ##活動前トリップに関するメソッド
+    def get_place(self):
+        return self.__place
+    def get_mode(self):
+        return self.__mode
+    def get_travel_time(self):
+        return self.__travel_time
+    def get_t_start_time(self):
+        return self.__start_time - self.__travel_time
+    def get_t_pre_start_time(self):
+        return self.__pre_start_time - self.__travel_time
+    def get_t_gap(self, ep):
+        min_t = min(self.get_t_pre_start_time(), ep.get_t_pre_start_time())
+        max_t = max(self.get_pre_end_time(), ep.get_pre_end_time())
+        return (max_t - min_t) - (self.__pre_duration + ep.get_pre_duration() + self.__travel_time + ep.get_travel_time())
+    
+    def set_place(self, O):
+        self.__place = dest_choice(self.__PURPOSE, O)
+        self.__mode, self.__travel_time = mode_choice(O, self.__place)
+    def forced_shift(self, s): ##強制シフト
+        self.__pre_start_time += s
+    
+    ##確認用
     def output(self):
         return self.__start_time, self.get_end_time()
 
@@ -284,69 +312,169 @@ class Project:
     
 
 
-###検証      
-                
-#RES = []
-#
-#for i in range(1000):
-#    
-#    p = Project("all_all", 1)
-#    
-##    print(p.get_frequency())
-#    
-#    pre = [x.output() for x in p.pre_schedule]
-##    print(pre)
-#    
-#    pro = [x.output() for x in p.schedule]
-#    
-#    p.make_schedule()
-#    
-#    pro = [x.output() for x in p.schedule]
-##    print(pro)
-#    a1 = -100000000000
-#    res = []
-#    for j in range(len(pro)):
-#        a2 = pro[j][0]
-#        res.append(a1 <= a2)
-#        a1 = pro[j][1]
-#    if len(res) != sum(res):
-#        print("error")
-#        break
-#    RES.extend(res)
-#
-#print(len(RES) == sum(RES))
-
-
-
 class Schedule(Project):
     ###Projectクラスを継承
-    def __init__(self, category):
+    def __init__(self, ID, category):
+        self.__personal_id = ID
         self.__home = sample_home()
         self.projects = [Project(category, purpose) for purpose in PURPOSE_INDEX]
         self.pre_schedule = []
-        ex = self.pre_schedule.extend
+        ex = self.pre_schedule.extend ##メソッドをキャッシュ
         for pro in self.projects:
             pro.make_schedule()
             ex(pro.schedule)
         self.schedule = []
+        self.__go_home_trip = {}
         
     def get_home(self):
         return self.__home
     
-    def out_put(self):
-        for e in self.schedule:
-            print(e.get_purpose(), e.get_start_time(), e.get_duration(), e.get_end_time())
+    ##出力用
+    def to_list(self):
+        ##結果をリストにまとめて表示
+        result = []
+        O = self.__home
+        ap = result.append ##メソッドをキャッシュ
+        for i, e in enumerate(self.schedule):
+            ##個人ＩＤ，アクティビティID，出発地，トリップ開始時刻，旅行時間，交通手段，
+            ##到着地（活動場所），目的，活動開始時間，活動終了時間
+            res = (self.__personal_id, i, O, e.get_t_start_time(), e.get_travel_time(), e.get_mode(),\
+                   e.get_place(), e.get_purpose(), e.get_start_time(), e.get_end_time())
+            O = e.get_place()
+            ap(res)
+        ##　帰宅トリップの記述
+        res = (self.__personal_id, i+1, O, e.get_end_time(), self.__go_home_trip["travel_time"],\
+               self.__go_home_trip["mode"], self.__home, np.nan, np.nan, np.nan)
+        ap(res)
+        return result
+    
+#    ##確認用
+#    def out_put(self):
+#        for e in self.schedule:
+#            print(e.get_purpose(), e.get_start_time(), e.get_duration(), e.get_end_time())     
+#    def out_put2(self):
+#        for e in self.schedule:
+#            print(e.get_purpose(), e.get_t_start_time(), e.get_duration(), e.get_end_time(), e.get_travel_time())
             
     def make_schedule(self):
+        sc = self.schedule_episode ##メソッドをキャッシュ
         for episode in self.pre_schedule:
-            self.schedule_episode(episode)
-
-
-schedule_list = []
+            sc(episode)
+            
+    def front_shift(self, overlap): ##スケジュールを前方にずらす
+        for i, eps in enumerate(self.schedule):
+            if i == 0: ##先頭スケジュール
+                eps.shift(overlap)
+            else:
+                ##前方エピソードとのギャップがある場合，シフト
+                gap = eps.get_t_gap(self.schedule[i-1])
+                if gap > 0:
+                    eps.shift(max(overlap, -1 * gap))
+    def rear_shift(self, overlap): ##スケジュールを後方にずらす
+        for i, eps in enumerate(self.schedule[::-1]):
+            ##スケジュールを逆順にループ
+            if i == 0: ##末尾スケジュール
+                eps.shift(-1 * overlap)
+            else:
+                ##後方エピソードとのギャップがある場合，シフト
+                gap = eps.get_t_gap(self.schedule[len(self.schedule) - i])
+                if gap > 0:
+                    eps.shift(min(-1 * overlap, gap))
+                    
+    def insert_trip(self):
+        ##活動場所，旅行時間，交通手段の設定
+        place_list = [sample_home()]
+        ap = place_list.append ##メソッドをキャッシュ
+        for e in self.schedule:
+            e.set_place(place_list[-1])
+            ap(e.get_place())
+        ##帰宅トリップの設定
+        self.__go_home_trip["mode"] , self.__go_home_trip["travel_time"] = mode_choice(place_list[-1], self.__home)
+        ##スケジュール調整
+        gap_list = [self.schedule[i].get_t_gap(self.schedule[i+1]) for i in range(len(self.schedule)-1)]
+#        print(gap_list)
+        gap_flag = [g >= 0 for g in gap_list]
+        if sum(gap_flag) == len(gap_flag):
+            for e in self.schedule:
+                e.update()
+            return ##ギャップが全て正なら終了
+        ######## ずらすことによる調整
+        overlap = sum([x for x in gap_list if x < 0])
+        self.front_shift(overlap)
+        self.rear_shift(overlap)
+        gap_list = [self.schedule[i].get_t_gap(self.schedule[i+1]) for i in range(len(self.schedule)-1)]
+        gap_flag = [g >= 0 for g in gap_list]
+        if sum(gap_flag) == len(gap_flag):
+            for e in self.schedule:
+                e.update()
+            return ##ギャップが全て正なら終了
+        ######## 活動時間を削減することによる調整
+        overlap = sum([x for x in gap_list if x < 0])
+        ##活動時間が長いものから削減
+        duration_sorted_index = list(np.argsort([e.get_pre_duration() for e in self.schedule]))
+        for i in duration_sorted_index:
+            self.schedule[i].shortening(overlap)
+            self.front_shift(overlap)
+            self.rear_shift(overlap)
+            gap_list = [self.schedule[i].get_t_gap(self.schedule[i+1]) for i in range(len(self.schedule)-1)]
+            gap_flag = [g >= 0 for g in gap_list]
+            if sum(gap_flag) == len(gap_flag):
+                for e in self.schedule:
+                    e.update()
+                return ##ギャップが全て正なら終了
+            overlap = sum([x for x in gap_list if x < 0])
+        ####### 制限を超えてずらす（最終調整）
+        for i, eps in enumerate(self.schedule):
+            if i == 0: ##先頭スケジュール
+                eps.forced_shift(overlap)
+            else:
+                ##前方エピソードとのギャップがある場合，シフト
+                gap = eps.get_t_gap(self.schedule[i-1])
+                if gap > 0:
+                    eps.forced_shift(max(overlap, -1 * gap))
+        for i, eps in enumerate(self.schedule[::-1]):
+            ##スケジュールを逆順にループ
+            if i == 0: ##末尾スケジュール
+                eps.forced_shift(-1 * overlap)
+            else:
+                ##後方エピソードとのギャップがある場合，シフト
+                gap = eps.get_t_gap(self.schedule[len(self.schedule) - i])
+                if gap > 0:
+                    eps.forced_shift(min(-1 * overlap, gap))
+        ##最終チェック
+        gap_list = [self.schedule[i].get_t_gap(self.schedule[i+1]) for i in range(len(self.schedule)-1)]
+#        print(gap_list)
+        gap_flag = [g >= 0 for g in gap_list]
+        for e in self.schedule:
+            e.update()
+        if sum(gap_flag) == len(gap_flag):
+            return
+        else:
+            ##ギャップが解消されない場合，エラー表示
+            print("OVERLAP_ERROR", self.__perspnal_id)
         
-for i in range(100):
-    s = Schedule("all_all")
-    s.make_schedule()
-    s.out_put()
-    schedule_list.append(s)
-    print()
+
+
+###検証用
+#import time
+#t1 = time.time()
+#
+#schedule_list = []
+#        
+#for i in range(100):
+#    s = Schedule(i, "all_all")
+#    s.make_schedule()
+##    print(len(s.pre_schedule), len(s.schedule))
+##    s.out_put()
+##    print()
+#    s.insert_trip()
+##    s.out_put()
+##    print()
+##    s.out_put2()
+#    schedule_list.append(s)
+##    print()
+#
+###実行時間の出力
+#t2 = time.time()
+#elapsed_time = t2-t1
+#print(f"実行時間：{elapsed_time}秒")

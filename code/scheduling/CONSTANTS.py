@@ -8,6 +8,16 @@ Created on Thu Sep  6 11:28:45 2018
 """
 
 
+##再サンプリング上限回数
+RESUMPLE_LIMIT = 10
+
+##エピソードシフト上限時間(秒)
+SHIFT_LIMIT = 2 * 60 * 60
+
+##エピソード短縮　上限割合
+SHORTENING_LIMIT = 0.5
+
+
 ##活動開始時間の時間の刻み(分)
 START_TIME_DELTA = 30
 ##刻みインデックスに対する秒のリスト
@@ -36,6 +46,9 @@ PURPOSE_LIST = ["work", "school", "shopping", "pastime", "others"]
 #PURPOSE_INDEX = list(range(1,len(PURPOSE_LIST)+1))
 PURPOSE_INDEX = [1, 2, 4, 5, 6]
 
+##目的のインデックスを文字列に変換する辞書
+PURPOSE_DIC = dict(zip(PURPOSE_INDEX, PURPOSE_LIST))
+
 
 ##個人属性分類一覧
 AGE_LIST = ["all", "under20", "over70", "20to69"]
@@ -49,11 +62,8 @@ CATEGORY_LIST
  'over70_all', 'over70_men', 'over70_women', '20to69_all', '20to69_men', '20to69_women']
 """
 
-##再サンプリング上限回数
-RESUMPLE_LIMIT = 10
 
-##エピソードシフト上限時間(秒)
-SHIFT_LIMIT = 3 * 60 * 60
+##結果用のカラム名
 
-##エピソード短縮　上限割合
-SHORTENING_LIMIT = 0.5
+RES_COL = ["personalID", "activityID", "O", "trip_start", "travel_time",\
+           "mode", "D", "purpose", "activity_start", "activity_end"]

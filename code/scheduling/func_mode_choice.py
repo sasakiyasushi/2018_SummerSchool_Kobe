@@ -45,7 +45,8 @@ def mode_selection_probability(O,D):
 def mode_choice(O,D,n=1):
     ##重み付き復元抽出
     result = np.random.choice(MODE_INDEX,n,p=mode_selection_probability(O,D))[0]
-    return MODE_LIST[result], travel_time_dict[(O,D)][result]
+    ##パラメータ推定用の時間単位から換算する（* 1000）
+    return MODE_LIST[result], travel_time_dict[(O,D)][result] * 1000
 
 
 ###検証用

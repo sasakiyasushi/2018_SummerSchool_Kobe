@@ -14,11 +14,11 @@ import os
 t1 = time.time()
 
 
-###　パスの設定
-#os.chdir(r".\choice")
+##　パスの設定
+os.chdir(r".\choice")
 
-###ゾーン数の設定
-#zone_num = 100
+##ゾーン数の設定
+zone_num = 100
 
 ###ゾーンの地理的特徴一覧
 #df_zone = pd.DataFrame(list(range(zone_num)), columns=["zoneID"])
@@ -35,7 +35,7 @@ t1 = time.time()
 #df_dist.to_csv("distance.csv", index=False)
 #
 #
-###ゾーン間旅行時間（交通手段別）
+##ゾーン間旅行時間（交通手段別）
 #df_time = pd.DataFrame(od_pair, columns=["O","D"])
 #df_time[["car","train","bus","cycle","walk"]] = pd.DataFrame([(1,2,3,4,5)] * len(od_pair))
 #
